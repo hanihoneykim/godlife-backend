@@ -139,6 +139,26 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Custom User Model
+AUTH_USER_MODEL = "user.User"
+
+
+# Rest Framework Authentication Classes
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        # "config.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.MultiPartParser",
+        "rest_framework.parsers.FormParser",
+    ),
+    # "DEFAULT_PAGINATION_CLASS": "config.pagination.DefaultPagination",
+    # "PAGE_SIZE": 10,
+}
+
 
 ###########################AWS
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
