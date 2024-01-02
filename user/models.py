@@ -47,3 +47,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.email} ({self.nickname})"
+
+    def save(self, *args, **kwargs):
+        if self.profile_image and self.pk:
+            try:
+                this = User.objects.get(pk=self.pk)
+                if this.profile_image != self.profile_image:
+                    print("profile_image changed")
+                    self.profile_image = compress_image(
+                        self.profile_image, size=(100, 100)
+                    )
+            except:
+                pass
+        if self.email:
+            self.email = self.email.lower().strip()
+
+        super().save(*args, **kwargs)
