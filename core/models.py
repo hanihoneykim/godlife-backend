@@ -18,3 +18,26 @@ class Team(CommonModel):
 class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     name = models.CharField(max_length=30, null=False, blank=False)
+
+
+class Log(CommonModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
+    user = models.ForeignKey(
+        User, null=True, related_name="logs", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=50, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True, upload_to=upload_path)
+    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.image:
+            try:
+                original = Log.objects.get(pk=self.pk)
+                if original.image != self.image:
+                    self.image = compress_image(self.image, size=(500, 500))
+            except Log.DoesNotExist:
+                self.image = compress_image(self.image, size=(500, 500))
+            except:
+                pass
+        super().save(*args, **kwargs)
