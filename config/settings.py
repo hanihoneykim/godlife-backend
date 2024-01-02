@@ -167,7 +167,7 @@ AWS_REGION = "ap-northeast-2"
 
 ###S3 Storages
 AWS_S3_SIGNATURE_VERSION = "s3v4"
-AWS_STORAGE_BUCKET_NAME = "artee-s3-bucket"
+AWS_STORAGE_BUCKET_NAME = "godlife-s3-bucket"
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
