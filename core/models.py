@@ -13,3 +13,8 @@ class Team(CommonModel):
     leader = models.ForeignKey(
         User, null=True, related_name="team", on_delete=models.CASCADE
     )
+
+
+class Category(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
+    name = models.CharField(max_length=30, null=False, blank=False)
