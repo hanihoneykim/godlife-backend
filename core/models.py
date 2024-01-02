@@ -41,3 +41,11 @@ class Log(CommonModel):
             except:
                 pass
         super().save(*args, **kwargs)
+
+
+class Comment(CommonModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
+    user = models.ForeignKey(
+        User, null=True, related_name="comments", on_delete=models.CASCADE
+    )
+    comment = models.TextField(null=True, blank=True)
