@@ -71,6 +71,7 @@ class MemberListCreate(generics.ListCreateAPIView):
         serializer.save(user=self.request.user, team=team_instance)
 
 
+# 팀 리더의 멤버 삭제 기능
 class MemberRemove(generics.DestroyAPIView):
     serializer_class = MemberSerializer
     permission_classes = (IsLeaderPermission,)
@@ -86,3 +87,22 @@ class MemberRemove(generics.DestroyAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+# 팀 멤버의 본인 탈퇴 기능
+class TeamLeaveView(generics.DestroyAPIView):
+    serializer_class = MemberSerializer
+    permission_classes = (IsTeamMemberPermission,)
+    queryset = Member.objects.all()
+
+    def delete(self, request, pk):
+        team_member = Member.objects.filter(team=pk, user=request.user).first()
+
+        if team_member:
+            team_member.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # 사용자가 해당 팀의 멤버가 아닌 경우
+            return Response(
+                {"detail": "해당 팀의 멤버가 아닙니다."}, status=status.HTTP_403_FORBIDDEN
+            )
