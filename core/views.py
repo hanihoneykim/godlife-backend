@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from config.permissions import IsLeaderPermission, IsTeamMemberPermission
 from rest_framework.parsers import MultiPartParser
@@ -49,3 +50,21 @@ class TeamDetail(generics.RetrieveUpdateDestroyAPIView):
             return [IsLeaderPermission()]
 
         return super().get_permissions()
+
+
+class MemberListCreate(generics.ListCreateAPIView):
+    serializer_class = MemberSerializer
+    queryset = Member.objects.all()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsTeamMemberPermission()]
+        elif self.request.method == "POST":
+            return [IsAuthenticated()]
+
+        return super().get_permissions()
+
+    def perform_create(self, serializer):
+        team_pk = self.kwargs.get("pk", None)
+        team_instance = get_object_or_404(Team, pk=team_pk)
+        serializer.save(user=self.request.user, team=team_instance)
