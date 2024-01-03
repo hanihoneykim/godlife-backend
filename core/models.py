@@ -2,7 +2,6 @@ import uuid
 from django.db import models
 from config.utils import compress_image, upload_path
 from common.models import CommonModel
-from user.models import User
 
 
 class Team(CommonModel):
@@ -10,9 +9,6 @@ class Team(CommonModel):
     name = models.CharField(max_length=30, null=False, blank=False)
     description = models.CharField(max_length=300, null=False, blank=False)
     image = models.ImageField(null=True, blank=True, upload_to=upload_path)
-    leader = models.ForeignKey(
-        User, null=True, related_name="team", on_delete=models.CASCADE
-    )
 
 
 class Category(models.Model):
@@ -23,12 +19,14 @@ class Category(models.Model):
 class Log(CommonModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     user = models.ForeignKey(
-        User, null=True, related_name="logs", on_delete=models.CASCADE
+        "user.User", null=True, related_name="logs", on_delete=models.CASCADE
     )
     title = models.CharField(max_length=50, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     image = models.ImageField(null=True, blank=True, upload_to=upload_path)
-    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, related_name="logs", null=True, on_delete=models.CASCADE
+    )
 
     def save(self, *args, **kwargs):
         if self.pk and self.image:
@@ -46,6 +44,6 @@ class Log(CommonModel):
 class Comment(CommonModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     user = models.ForeignKey(
-        User, null=True, related_name="comments", on_delete=models.CASCADE
+        "user.User", null=True, related_name="comments", on_delete=models.CASCADE
     )
     comment = models.TextField(null=True, blank=True)

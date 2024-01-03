@@ -74,3 +74,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 class AuthToken(CommonModel):
     id = models.CharField(default=generate_hex, max_length=64, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class Member(CommonModel):
+    id = models.CharField(default=generate_hex, max_length=64, primary_key=True)
+    user = models.ForeignKey(
+        User, related_name="team_member", null=True, on_delete=models.CASCADE
+    )
+    team = models.ForeignKey(
+        "core.Team", related_name="member", null=True, on_delete=models.CASCADE
+    )
+    is_leader = models.BooleanField(default=False)
