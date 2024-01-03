@@ -146,7 +146,7 @@ AUTH_USER_MODEL = "user.User"
 # Rest Framework Authentication Classes
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        # "config.authentication.TokenAuthentication",
+        "config.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
@@ -155,8 +155,8 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
         "rest_framework.parsers.FormParser",
     ),
-    # "DEFAULT_PAGINATION_CLASS": "config.pagination.DefaultPagination",
-    # "PAGE_SIZE": 10,
+    "DEFAULT_PAGINATION_CLASS": "config.pagination.DefaultPagination",
+    "PAGE_SIZE": 10,
 }
 
 
