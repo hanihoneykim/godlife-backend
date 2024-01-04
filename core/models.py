@@ -30,6 +30,9 @@ class Log(CommonModel):
     category = models.ForeignKey(
         Category, related_name="logs", null=True, on_delete=models.CASCADE
     )
+    liked_user = models.ManyToManyField(
+        "user.User", related_name="liked_logs", null=True, blank=True
+    )
 
     def save(self, *args, **kwargs):
         if self.pk and self.image:
