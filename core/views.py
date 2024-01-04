@@ -93,6 +93,11 @@ class MemberRemove(generics.DestroyAPIView):
         member = Member.objects.filter(team=pk, user=user_pk).first()
         if member:
             member.delete()
+
+            # 해당 팀과 유저에 해당하는 로그들 삭제
+            logs_to_delete = Log.objects.filter(category__team=pk, user=user_pk)
+            logs_to_delete.delete()
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -109,6 +114,9 @@ class TeamLeaveView(generics.DestroyAPIView):
 
         if team_member:
             team_member.delete()
+            # 해당 팀에 본인이 작성한 로그들 삭제
+            logs_to_delete = Log.objects.filter(category__team=pk, user=request.user)
+            logs_to_delete.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             # 사용자가 해당 팀의 멤버가 아닌 경우
