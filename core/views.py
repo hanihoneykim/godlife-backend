@@ -5,17 +5,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from config.permissions import IsLeaderPermission, IsTeamMemberPermission
 from rest_framework.parsers import MultiPartParser
-from .serializers import LogSerializer, TeamSerializer
+from .serializers import LogSerializer, TeamSerializer, CategorySerializer
 from user.serializers import MemberSerializer
-from .models import Log, Team
+from .models import Log, Team, Category
 from user.models import Member
-
-
-class LogListCreate(generics.ListCreateAPIView):
-    parser_classes = [MultiPartParser]
-    serializer_class = LogSerializer
-    permission_classes = [AllowAny]
-    queryset = Log.objects.all()
 
 
 class TeamListCreate(generics.ListCreateAPIView):
@@ -65,10 +58,25 @@ class MemberListCreate(generics.ListCreateAPIView):
 
         return super().get_permissions()
 
-    def perform_create(self, serializer):
-        team_pk = self.kwargs.get("pk", None)
-        team_instance = get_object_or_404(Team, pk=team_pk)
-        serializer.save(user=self.request.user, team=team_instance)
+    def create(self, request, pk):
+        team_instance = get_object_or_404(Team, pk=pk)
+
+        existing_member = Member.objects.filter(
+            user=self.request.user, team=team_instance
+        ).exists()
+        if existing_member:
+            return Response(
+                data={"ok": False, "message": "이미 가입된 팀원입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=self.request.user, team=team_instance)
+            return Response(
+                data={"ok": True, "message": "가입되었습니다."},
+                status=status.HTTP_201_CREATED,
+            )
 
 
 # 팀 리더의 멤버 삭제 기능
