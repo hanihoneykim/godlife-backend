@@ -114,3 +114,24 @@ class TeamLeaveView(generics.DestroyAPIView):
             return Response(
                 {"detail": "해당 팀의 멤버가 아닙니다."}, status=status.HTTP_403_FORBIDDEN
             )
+
+
+class CategoryListCreate(generics.ListCreateAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [IsTeamMemberPermission()]
+        elif self.request.method == "POST":
+            return [IsLeaderPermission()]
+
+    def create(self, request, pk):
+        team_instance = get_object_or_404(Team, pk=pk)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(team=team_instance)
+        return Response(
+            data={"ok": True},
+            status=status.HTTP_201_CREATED,
+        )

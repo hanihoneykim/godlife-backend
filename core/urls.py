@@ -5,6 +5,7 @@ from .views import (
     MemberListCreate,
     MemberRemove,
     TeamLeaveView,
+    CategoryListCreate,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("teams/<str:pk>/members", MemberListCreate.as_view()),
     path("teams/<str:pk>/members/leave", TeamLeaveView.as_view()),
     path("teams/<str:pk>/members/<str:user_pk>", MemberRemove.as_view()),
+    path("teams/<str:pk>/categories", CategoryListCreate.as_view()),
 ]
