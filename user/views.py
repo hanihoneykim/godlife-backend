@@ -2,8 +2,10 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 from .models import User, AuthToken
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserProfileSerializer
 
 
 class UserSignUp(generics.CreateAPIView):
@@ -59,3 +61,47 @@ class UserLogin(APIView):
                 {"error": "존재하지 않는 유저거나 비밀번호가 맞지 않습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class MyProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            if request.data.get("nickname"):
+                if (
+                    User.objects.filter(nickname=request.data.get("nickname"))
+                    and request.data.get("nickname") != request.user.nickname
+                ):
+                    return Response(
+                        {"error": "이미 존재하는 닉네임입니다."}, status=status.HTTP_400_BAD_REQUEST
+                    )
+            if request.data.get("old_password"):
+                old_password = request.data.get("old_password")
+
+                # Verify old password
+                print(old_password)
+                print(user.password)
+                print(check_password(old_password, user.password))
+                if old_password and check_password(old_password, user.password):
+                    # If old password is correct, update to the new password
+                    new_password = request.data.get("new_password")
+                    user.set_password(new_password)
+                else:
+                    return Response(
+                        {"ok": False, "error": "기존 비밀번호를 확인해주세요."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
