@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
@@ -219,3 +220,25 @@ class LogDetail(generics.RetrieveUpdateDestroyAPIView):
 
         log.delete()
         return Response({"message": "게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class LikeLog(APIView):
+    permission_classes = [IsTeamMemberPermission]
+
+    def put(self, request, pk, log_pk):
+        log = Log.objects.get(id=log_pk)
+        user = request.user
+        if user in log.liked_user.all():
+            pass
+        else:
+            log.liked_user.add(user)
+        return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, pk, log_pk):
+        log = Log.objects.get(id=log_pk)
+        user = request.user
+        if user in log.liked_user.all():
+            log.liked_user.remove(user)
+        else:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
