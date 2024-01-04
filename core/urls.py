@@ -7,6 +7,8 @@ from .views import (
     TeamLeaveView,
     CategoryListCreate,
     CategoryDetail,
+    LogListCreate,
+    LogDetail,
 )
 
 urlpatterns = [
@@ -17,4 +19,9 @@ urlpatterns = [
     path("teams/<str:pk>/members/<str:user_pk>", MemberRemove.as_view()),
     path("teams/<str:pk>/categories", CategoryListCreate.as_view()),
     path("teams/<str:pk>/categories/<str:category_pk>", CategoryDetail.as_view()),
+    path("teams/<str:pk>/categories/<str:category_pk>/logs", LogListCreate.as_view()),
+    path(
+        "teams/<str:pk>/categories/<str:category_pk>/logs/<str:log_pk>",
+        LogDetail.as_view(),
+    ),
 ]

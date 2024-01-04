@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -145,5 +146,68 @@ class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
         pk = self.kwargs.get("pk")
         category_pk = self.kwargs.get("category_pk")
         qs = Category.objects.get(team__id=pk, id=category_pk)
-        print("qs:", qs)
         return qs
+
+
+class LogListCreate(generics.ListCreateAPIView):
+    permission_classes = [IsTeamMemberPermission]
+    serializer_class = LogSerializer
+
+    def get_queryset(self):
+        team_pk = self.kwargs.get("pk")
+        category_pk = self.kwargs.get("category_pk")
+        category = Category.objects.get(team__id=team_pk, id=category_pk)
+        return Log.objects.filter(category=category)
+
+    def create(self, request, *args, **kwargs):
+        team_pk = self.kwargs.get("pk")
+        category_pk = self.kwargs.get("category_pk")
+
+        category = get_object_or_404(Category, team__id=team_pk, id=category_pk)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user, category=category)
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data={
+                "ok": True,
+                "data": serializer.data,
+            },
+        )
+
+
+class LogDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = LogSerializer
+    permission_classes = [IsTeamMemberPermission]
+
+    def get_object(self):
+        team_pk = self.kwargs.get("pk")
+        category_pk = self.kwargs.get("category_pk")
+        log_pk = self.kwargs.get("log_pk")
+        category = Category.objects.get(team__id=team_pk, id=category_pk)
+        log = Log.objects.get(category=category, id=log_pk)
+        return log
+
+    def update(self, request, *args, **kwargs):
+        log = self.get_object()
+
+        if log.user != request.user:
+            raise PermissionDenied("해당 게시글의 작성자가 아닙니다.")
+
+        log.title = request.data.get("title", log.title)
+        log.content = request.data.get("content", log.content)
+        log.image = request.data.get("image", log.image)
+        log.save()
+
+        serializer = self.get_serializer(log)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        log = self.get_object()
+
+        if log.user != request.user:
+            raise PermissionDenied("해당 게시글의 작성자가 아닙니다.")
+
+        log.delete()
+        return Response({"message": "게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
