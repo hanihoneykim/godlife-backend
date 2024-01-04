@@ -14,6 +14,9 @@ class Team(CommonModel):
 class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     name = models.CharField(max_length=30, null=False, blank=False)
+    team = models.ForeignKey(
+        Team, related_name="categories", null=True, on_delete=models.CASCADE
+    )
 
 
 class Log(CommonModel):
@@ -47,3 +50,6 @@ class Comment(CommonModel):
         "user.User", null=True, related_name="comments", on_delete=models.CASCADE
     )
     comment = models.TextField(null=True, blank=True)
+    log = models.ForeignKey(
+        Log, related_name="comments", null=True, on_delete=models.CASCADE
+    )
