@@ -135,3 +135,15 @@ class CategoryListCreate(generics.ListCreateAPIView):
             data={"ok": True},
             status=status.HTTP_201_CREATED,
         )
+
+
+class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = [IsLeaderPermission]
+
+    def get_object(self):
+        pk = self.kwargs.get("pk")
+        category_pk = self.kwargs.get("category_pk")
+        qs = Category.objects.get(team__id=pk, id=category_pk)
+        print("qs:", qs)
+        return qs
