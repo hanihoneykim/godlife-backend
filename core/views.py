@@ -31,6 +31,25 @@ class TeamListCreate(generics.ListCreateAPIView):
 
         return super().get_permissions()
 
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset
+
+        status_type = request.query_params.get("status_type")
+        if status_type:
+            queryset = queryset.filter(status_type=status_type)
+
+        personality_type = request.query_params.get("personality_type")
+        if personality_type:
+            queryset = queryset.filter(personality_type=personality_type)
+
+        preference_type = request.query_params.get("preference_type")
+        if preference_type:
+            queryset = queryset.filter(preference_type=preference_type)
+
+        queryset = queryset.distinct().order_by("-created_at")
+        serializer = TeamSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
         team_instance = serializer.save()
 
