@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import check_password
 from .social import (
     kakao_get_access_token,
     kakao_get_user,
+    naver_get_access_token,
+    naver_get_user,
 )
 from .models import User, AuthToken
 from .serializers import UserSerializer, UserProfileSerializer
@@ -121,9 +123,9 @@ class SocialAuthentication(APIView):
                 case "kakao":
                     access_token = kakao_get_access_token(request.data)
                     user = kakao_get_user(access_token)
-                # case "naver":
-                #     access_token = naver_get_access_token(request.data)
-                #     user = naver_get_user(access_token)
+                case "naver":
+                    access_token = naver_get_access_token(request.data)
+                    user = naver_get_user(access_token)
                 case _:
                     return Response(
                         data={"detail": f"Unknown provider {provider}"},
