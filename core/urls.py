@@ -11,6 +11,7 @@ from .views import (
     LogDetail,
     LikeLog,
     CommentListCreate,
+    CommentDetail,
 )
 
 urlpatterns = [
@@ -33,5 +34,9 @@ urlpatterns = [
     path(
         "teams/<str:pk>/logs/<str:log_pk>/comments",
         CommentListCreate.as_view(),
+    ),
+    path(
+        "teams/<str:pk>/logs/<str:log_pk>/comments/<comment_pk>",
+        CommentDetail.as_view(),
     ),
 ]

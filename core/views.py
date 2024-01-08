@@ -274,3 +274,26 @@ class CommentListCreate(generics.ListCreateAPIView):
                 "data": serializer.data,
             },
         )
+
+
+class CommentDetail(generics.RetrieveDestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsTeamMemberPermission]
+
+    def get_object(self):
+        log_pk = self.kwargs.get("log_pk")
+        comment_pk = self.kwargs.get("comment_pk")
+        try:
+            comment = Comment.objects.get(log__id=log_pk, id=comment_pk)
+            return comment
+        except Comment.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, *args, **kwargs):
+        comment = self.get_object()
+
+        if comment.user != request.user:
+            raise PermissionDenied("해당 게시글의 작성자가 아닙니다.")
+
+        comment.delete()
+        return Response({"message": "게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
