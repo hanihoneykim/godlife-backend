@@ -194,7 +194,19 @@ class LogListCreate(generics.ListCreateAPIView):
         team_pk = self.kwargs.get("pk")
         category_pk = self.kwargs.get("category_pk")
         category = Category.objects.get(team__id=team_pk, id=category_pk)
-        return Log.objects.filter(category=category)
+        queryset = Log.objects.filter(category=category)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        search_keyword = self.request.query_params.get("search_keyword", "")
+        if search_keyword:
+            queryset = queryset.filter(title__icontains=search_keyword)
+
+        queryset = queryset.distinct().order_by("-created_at")
+        serializer = LogSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         team_pk = self.kwargs.get("pk")
