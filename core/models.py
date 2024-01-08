@@ -5,10 +5,32 @@ from common.models import CommonModel
 
 
 class Team(CommonModel):
+    STATUS_CHOICES = [
+        ("online", "온라인"),
+        ("offline", "오프라인"),
+    ]
+    PERSONALITY_CHOICES = [
+        ("introverted", "내향형"),
+        ("extroverted", "외향형"),
+    ]
+    PREFERENCE_CHOICES = [
+        ("morning", "아침형"),
+        ("evening", "저녁형"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     name = models.CharField(max_length=30, null=False, blank=False)
     description = models.CharField(max_length=300, null=False, blank=False)
     image = models.ImageField(null=True, blank=True, upload_to=upload_path)
+    status_type = models.CharField(
+        max_length=100, choices=STATUS_CHOICES, blank=True, null=True
+    )
+    personality_type = models.CharField(
+        max_length=12, choices=PERSONALITY_CHOICES, null=True, blank=True
+    )
+    preference_type = models.CharField(
+        max_length=10, choices=PREFERENCE_CHOICES, null=True, blank=True
+    )
 
 
 class Category(models.Model):
