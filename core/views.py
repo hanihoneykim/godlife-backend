@@ -34,6 +34,10 @@ class TeamListCreate(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         queryset = self.queryset
 
+        search_keyword = self.request.query_params.get("search_keyword", "")
+        if search_keyword:
+            queryset = queryset.filter(name__icontains=search_keyword)
+
         status_type = request.query_params.get("status_type")
         if status_type:
             queryset = queryset.filter(status_type=status_type)
