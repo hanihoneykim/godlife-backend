@@ -38,6 +38,22 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    SOCIAL_PROVIDER_CHOICES = [
+        ("internal", "INTERNAL"),
+        ("google", "GOOGLE"),
+        ("facebook", "FACEBOOK"),
+        ("kakao", "KAKAO"),
+        ("naver", "NAVER"),
+    ]
+
+    social_provider = models.CharField(
+        max_length=20,
+        choices=SOCIAL_PROVIDER_CHOICES,
+        default="internal",
+        null=True,
+        blank=True,
+    )
+    social_uid = models.CharField(max_length=255, blank=True, null=True, default=None)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     nickname = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(max_length=255, unique=True, null=True, blank=True)

@@ -2,8 +2,12 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.hashers import check_password
+from .social import (
+    kakao_get_access_token,
+    kakao_get_user,
+)
 from .models import User, AuthToken
 from .serializers import UserSerializer, UserProfileSerializer
 
@@ -105,3 +109,35 @@ class MyProfileDetail(generics.RetrieveUpdateDestroyAPIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SocialAuthentication(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        user = None
+        try:
+            match provider := kwargs.get("provider"):
+                case "kakao":
+                    access_token = kakao_get_access_token(request.data)
+                    user = kakao_get_user(access_token)
+                # case "naver":
+                #     access_token = naver_get_access_token(request.data)
+                #     user = naver_get_user(access_token)
+                case _:
+                    return Response(
+                        data={"detail": f"Unknown provider {provider}"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+        except ValueError as e:
+            return Response(
+                data={"detail": f"Invalid Request: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if user:
+            auth_token = AuthToken.objects.create(user=user)
+            return Response(data={"token": auth_token.id}, status=status.HTTP_200_OK)
+        return Response(
+            data={"detail": f"Cannot get user information from {provider}"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
