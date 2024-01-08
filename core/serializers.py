@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Log, Team, Category
+from core.models import Log, Team, Category, Comment
 
 
 class LogSerializer(serializers.ModelSerializer):
@@ -19,5 +19,12 @@ class TeamSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
         fields = "__all__"
         read_only_fields = ("id",)

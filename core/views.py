@@ -7,9 +7,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from config.permissions import IsLeaderPermission, IsTeamMemberPermission
 from rest_framework.parsers import MultiPartParser
-from .serializers import LogSerializer, TeamSerializer, CategorySerializer
+from .serializers import (
+    LogSerializer,
+    TeamSerializer,
+    CategorySerializer,
+    CommentSerializer,
+)
 from user.serializers import MemberSerializer
-from .models import Log, Team, Category
+from .models import Log, Team, Category, Comment
 from user.models import Member
 
 
@@ -242,3 +247,30 @@ class LikeLog(APIView):
         else:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CommentListCreate(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsTeamMemberPermission]
+
+    def get_queryset(self):
+        log_pk = self.kwargs.get("log_pk")
+        log = Log.objects.get(id=log_pk)
+        return Comment.objects.filter(log=log)
+
+    def create(self, request, *args, **kwargs):
+        team_pk = self.kwargs.get("team_pk")
+        log_pk = self.kwargs.get("log_pk")
+
+        log = get_object_or_404(Log, id=log_pk)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user, log=log)
+        return Response(
+            status=status.HTTP_201_CREATED,
+            data={
+                "ok": True,
+                "data": serializer.data,
+            },
+        )
