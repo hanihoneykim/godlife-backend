@@ -3,6 +3,11 @@ from core.models import Log, Team, Category, Comment
 
 
 class LogSerializer(serializers.ModelSerializer):
+    user_nickname = serializers.CharField(source="user.nickname", read_only=True)
+    user_profile_image = serializers.ImageField(
+        source="user.profile_image", read_only=True
+    )
+
     class Meta:
         model = Log
         fields = "__all__"
@@ -24,6 +29,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user_nickname = serializers.CharField(source="user.nickname", read_only=True)
+    user_profile_image = serializers.ImageField(
+        source="user.profile_image", read_only=True
+    )
+
     class Meta:
         model = Comment
         fields = "__all__"

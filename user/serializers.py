@@ -3,6 +3,11 @@ from .models import Member, User
 
 
 class MemberSerializer(serializers.ModelSerializer):
+    user_nickname = serializers.CharField(source="user.nickname", read_only=True)
+    user_profile_image = serializers.ImageField(
+        source="user.profile_image", read_only=True
+    )
+
     class Meta:
         model = Member
         fields = "__all__"
