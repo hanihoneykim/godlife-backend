@@ -179,6 +179,10 @@ class CategoryListCreate(generics.ListCreateAPIView):
         elif self.request.method == "POST":
             return [IsLeaderPermission()]
 
+    def get_queryset(self):
+        team_id = self.kwargs.get("pk")
+        return Category.objects.filter(team_id=team_id)
+
     def create(self, request, pk):
         team_instance = get_object_or_404(Team, pk=pk)
         serializer = self.get_serializer(data=request.data)
