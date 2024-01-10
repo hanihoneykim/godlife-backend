@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
@@ -38,17 +39,27 @@ class TeamListCreate(generics.ListCreateAPIView):
         if search_keyword:
             queryset = queryset.filter(name__icontains=search_keyword)
 
-        status_type = request.query_params.get("status_type")
-        if status_type:
-            queryset = queryset.filter(status_type=status_type)
+        status_types = request.query_params.getlist("status_type")
+        if status_types:
+            # Use Q objects to create OR conditions for multiple values
+            status_query = Q()
+            for status_type in status_types:
+                status_query |= Q(status_type=status_type)
+            queryset = queryset.filter(status_query)
 
-        personality_type = request.query_params.get("personality_type")
-        if personality_type:
-            queryset = queryset.filter(personality_type=personality_type)
+        personality_types = request.query_params.getlist("personality_type")
+        if personality_types:
+            personality_query = Q()
+            for personality_type in personality_types:
+                personality_query |= Q(personality_type=personality_type)
+            queryset = queryset.filter(personality_query)
 
-        preference_type = request.query_params.get("preference_type")
-        if preference_type:
-            queryset = queryset.filter(preference_type=preference_type)
+        preference_types = request.query_params.getlist("preference_type")
+        if preference_types:
+            preference_query = Q()
+            for preference_type in preference_types:
+                preference_query |= Q(preference_type=preference_type)
+            queryset = queryset.filter(preference_query)
 
         queryset = queryset.distinct().order_by("-created_at")
         serializer = TeamSerializer(queryset, many=True)
