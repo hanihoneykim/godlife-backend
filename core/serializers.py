@@ -19,7 +19,7 @@ class TeamSerializer(serializers.ModelSerializer):
         source="concept_image.name", read_only=True
     )
     concept_image_image = serializers.CharField(
-        source="concept_image.image", read_only=True
+        source="concept_image.image.url", read_only=True
     )
 
     class Meta:
@@ -50,7 +50,5 @@ class CommentSerializer(serializers.ModelSerializer):
 class ConceptImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConceptImage
-        fields = (
-            "name",
-            "image",
-        )
+        fields = "__all__"
+        read_only_fields = ("id",)

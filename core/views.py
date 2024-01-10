@@ -13,14 +13,14 @@ from .serializers import (
     TeamSerializer,
     CategorySerializer,
     CommentSerializer,
+    ConceptImageSerializer,
 )
 from user.serializers import MemberSerializer
-from .models import Log, Team, Category, Comment
+from .models import Log, Team, Category, Comment, ConceptImage
 from user.models import Member
 
 
 class TeamListCreate(generics.ListCreateAPIView):
-    parser_classes = [MultiPartParser]
     serializer_class = TeamSerializer
     queryset = Team.objects.all()
 
@@ -78,7 +78,6 @@ class TeamListCreate(generics.ListCreateAPIView):
 
 
 class TeamDetail(generics.RetrieveUpdateDestroyAPIView):
-    parser_classes = [MultiPartParser]
     serializer_class = TeamSerializer
     queryset = Team.objects.all()
 
@@ -351,3 +350,10 @@ class CommentDetail(generics.RetrieveDestroyAPIView):
 
         comment.delete()
         return Response({"message": "게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+
+class ConceptImageListCreate(generics.ListCreateAPIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+    serializer_class = ConceptImageSerializer
+    queryset = ConceptImage.objects.all()

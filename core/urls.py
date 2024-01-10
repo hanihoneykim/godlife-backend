@@ -12,6 +12,7 @@ from .views import (
     LikeLog,
     CommentListCreate,
     CommentDetail,
+    ConceptImageListCreate,
 )
 
 urlpatterns = [
@@ -39,4 +40,5 @@ urlpatterns = [
         "teams/<str:pk>/logs/<str:log_pk>/comments/<comment_pk>",
         CommentDetail.as_view(),
     ),
+    path("concept-images", ConceptImageListCreate.as_view()),
 ]

@@ -22,7 +22,7 @@ class Team(CommonModel):
     name = models.CharField(max_length=30, null=False, blank=False)
     description = models.CharField(max_length=300, null=False, blank=False)
     concept_image = models.ForeignKey(
-        "core.ConceptImage", related_name="team", null=True, on_delete=models.CASCADE
+        "core.ConceptImage", related_name="team", null=True, on_delete=models.SET_NULL
     )
     status_type = models.CharField(
         max_length=100, choices=STATUS_CHOICES, blank=True, null=True
