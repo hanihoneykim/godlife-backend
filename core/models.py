@@ -21,7 +21,9 @@ class Team(CommonModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
     name = models.CharField(max_length=30, null=False, blank=False)
     description = models.CharField(max_length=300, null=False, blank=False)
-    image = models.ImageField(null=True, blank=True, upload_to=upload_path)
+    concept_image = models.ForeignKey(
+        "core.ConceptImage", related_name="team", null=True, on_delete=models.CASCADE
+    )
     status_type = models.CharField(
         max_length=100, choices=STATUS_CHOICES, blank=True, null=True
     )
@@ -31,6 +33,9 @@ class Team(CommonModel):
     preference_type = models.CharField(
         max_length=10, choices=PREFERENCE_CHOICES, null=True, blank=True
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Category(models.Model):
@@ -78,3 +83,34 @@ class Comment(CommonModel):
     log = models.ForeignKey(
         Log, related_name="comments", null=True, on_delete=models.CASCADE
     )
+
+
+class ConceptImage(models.Model):
+    CONCEPT_CHOICES = [
+        ("exercise", "운동"),
+        ("reading", "독서"),
+        ("study", "공부"),
+        ("work", "업무"),
+        ("friendship", "친목"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, null=False, blank=False)
+    name = models.CharField(
+        max_length=12, choices=CONCEPT_CHOICES, null=True, blank=True
+    )
+    image = models.ImageField(null=True, blank=True, upload_to=upload_path)
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.image:
+            try:
+                original = ConceptImage.objects.get(pk=self.pk)
+                if original.image != self.image:
+                    self.image = compress_image(self.image, size=(500, 500))
+            except ConceptImage.DoesNotExist:
+                self.image = compress_image(self.image, size=(500, 500))
+            except:
+                pass
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name

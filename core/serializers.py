@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Log, Team, Category, Comment
+from core.models import Log, Team, Category, Comment, ConceptImage
 
 
 class LogSerializer(serializers.ModelSerializer):
@@ -15,6 +15,13 @@ class LogSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
+    concept_image_name = serializers.CharField(
+        source="concept_image.name", read_only=True
+    )
+    concept_image_image = serializers.CharField(
+        source="concept_image.image", read_only=True
+    )
+
     class Meta:
         model = Team
         fields = "__all__"
@@ -38,3 +45,12 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = "__all__"
         read_only_fields = ("id",)
+
+
+class ConceptImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConceptImage
+        fields = (
+            "name",
+            "image",
+        )
