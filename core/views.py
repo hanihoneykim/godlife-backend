@@ -33,7 +33,11 @@ class TeamListCreate(generics.ListCreateAPIView):
         return super().get_permissions()
 
     def get(self, request, *args, **kwargs):
+        my_team_param = request.query_params.get("myteam", "").lower()
         queryset = self.queryset
+
+        if my_team_param == "true" and self.request.user.is_authenticated:
+            queryset = queryset.filter(member__user=self.request.user)
 
         search_keyword = self.request.query_params.get("search_keyword", "")
         if search_keyword:
