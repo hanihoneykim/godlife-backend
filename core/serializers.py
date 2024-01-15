@@ -7,11 +7,15 @@ class LogSerializer(serializers.ModelSerializer):
     user_profile_image = serializers.ImageField(
         source="user.profile_image", read_only=True
     )
+    liked_user_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Log
         fields = "__all__"
         read_only_fields = ("id",)
+
+    def get_liked_user_count(self, obj):
+        return obj.liked_user.count()
 
 
 class TeamSerializer(serializers.ModelSerializer):
